@@ -1,40 +1,38 @@
-import { useState } from 'react';
-import { View, TextInput, Button, Text, StyleSheet } from 'react-native';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../firebase/firebaseConfig';
 import { useRouter } from 'expo-router';
+import { useState } from 'react';
+import { Button, StyleSheet, Text, TextInput, View } from 'react-native';
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState('');
+  const router = useRouter();
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const router = useRouter();
 
-  const handleLogin = async () => {
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-      router.replace('/');
-    } catch (err: any) {
-      setError(err.message);
+  const handleLogin = () => {
+    // Simple check, replace with real auth logic
+    if (username === 'user' && password === 'pass') {
+      router.replace('/home');
+    } else {
+      setError('Invalid credentials');
     }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>StudySync Login</Text>
+      <Text style={styles.title}>Login</Text>
       <TextInput
+        placeholder="Username"
+        value={username}
+        onChangeText={setUsername}
         style={styles.input}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
         autoCapitalize="none"
       />
       <TextInput
-        style={styles.input}
         placeholder="Password"
         value={password}
-        secureTextEntry
         onChangeText={setPassword}
+        style={styles.input}
+        secureTextEntry
       />
       {error ? <Text style={styles.error}>{error}</Text> : null}
       <Button title="Login" onPress={handleLogin} />
@@ -43,14 +41,8 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 24, justifyContent: 'center' },
-  title: { fontSize: 24, marginBottom: 16, textAlign: 'center' },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 12,
-    marginBottom: 12,
-    borderRadius: 6,
-  },
-  error: { color: 'red', textAlign: 'center', marginBottom: 12 },
+  container: { flex: 1, justifyContent: 'center', padding: 24 },
+  title: { fontSize: 32, marginBottom: 24, textAlign: 'center' },
+  input: { borderWidth: 1, borderColor: '#ccc', marginBottom: 12, padding: 8, borderRadius: 4 },
+  error: { color: 'red', marginBottom: 12, textAlign: 'center' },
 });
