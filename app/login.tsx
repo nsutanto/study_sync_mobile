@@ -1,19 +1,23 @@
 import { useRouter } from 'expo-router';
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { useState } from 'react';
 import { Button, StyleSheet, Text, TextInput, View } from 'react-native';
+import '../firebase/firebaseConfig'; // Ensure Firebase is initialized
 
 export default function LoginScreen() {
   const router = useRouter();
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  const handleLogin = () => {
-    // Simple check, replace with real auth logic
-    if (username === 'user' && password === 'pass') {
+  const handleLogin = async () => {
+    setError('');
+    try {
+      const auth = getAuth();
+      await signInWithEmailAndPassword(auth, email, password);
       router.replace('/home');
-    } else {
-      setError('Invalid credentials');
+    } catch (err) {
+      setError('Invalid email or password');
     }
   };
 
@@ -21,11 +25,12 @@ export default function LoginScreen() {
     <View style={styles.container}>
       <Text style={styles.title}>Login</Text>
       <TextInput
-        placeholder="Username"
-        value={username}
-        onChangeText={setUsername}
+        placeholder="Email"
+        value={email}
+        onChangeText={setEmail}
         style={styles.input}
         autoCapitalize="none"
+        keyboardType="email-address"
       />
       <TextInput
         placeholder="Password"
@@ -46,3 +51,4 @@ const styles = StyleSheet.create({
   input: { borderWidth: 1, borderColor: '#ccc', marginBottom: 12, padding: 8, borderRadius: 4 },
   error: { color: 'red', marginBottom: 12, textAlign: 'center' },
 });
+
