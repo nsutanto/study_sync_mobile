@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getApp, getApps, initializeApp } from 'firebase/app';
-import { getReactNativePersistence, initializeAuth } from 'firebase/auth';
+import { getApps, initializeApp } from 'firebase/app';
+import { getAuth, getReactNativePersistence, initializeAuth, Auth } from 'firebase/auth';
 import { Platform } from 'react-native';
 
 const firebaseConfig = {
@@ -12,19 +12,29 @@ const firebaseConfig = {
   appId: "1:1084042934341:web:06153ecac7dcebaf3b0b2c",
 };
 
-// Initialize Firebase app only once
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+let app;
+let auth;
 
-// Initialize Auth only once and only on native
-if (Platform.OS !== 'web') {
-  try {
-    // This will throw if already initialized, so we catch and ignore
-    initializeAuth(app, {
-      persistence: getReactNativePersistence(AsyncStorage),
-    });
-  } catch (e) {
-    // Ignore duplicate initialization error
-  }
+if (getApps().length === 0) {
+  app = initializeApp(firebaseConfig);
+} else {
+  app = getApps()[0];
 }
 
-export default app;
+if (Platform.OS !== 'web') {
+  // Only initializeAuth ONCE and never call getAuth(app) before this
+  if (!auth) {
+    try {
+      auth = initializeAuth(app, {
+        persistence: getReactNativePersistence(AsyncStorage),
+      });
+    } catch (e) {
+      // If already initialized, get the existing instance
+      auth = getAuth(app);
+    }
+  }
+} else {
+  auth = getAuth(app);
+}
+
+export { app, auth };
